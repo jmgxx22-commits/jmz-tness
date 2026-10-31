@@ -1,4 +1,4 @@
-import { handleAnalyzeMeal } from '../server/geminiBackend';
+import { handleAnalyzeMeal } from '../../server/geminiBackend.ts';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') {
