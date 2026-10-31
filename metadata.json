@@ -1,0 +1,6 @@
+{
+  "name": "J-MZ Tness - Seguimiento y Entrenamiento con IA",
+  "description": "Plataforma de seguimiento físico y entrenamiento personalizado con IA basada en el proyecto J-MZ Tness.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

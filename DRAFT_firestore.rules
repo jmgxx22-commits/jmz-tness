@@ -1,0 +1,198 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['userId', 'displayName']) &&
+        data.keys().hasOnly(['userId', 'displayName', 'email', 'age', 'weight', 'targetWeight', 'nextTargetWeight', 'height', 'gender', 'goal', 'experienceLevel', 'daysAvailable', 'timePerSession', 'workoutLocation', 'preferences', 'injuriesOrLimitations', 'createdAt', 'updatedAt']) &&
+        data.userId is string && data.userId == request.auth.uid &&
+        data.displayName is string && data.displayName.size() <= 100 &&
+        (!('email' in data) || (data.email is string && data.email.size() <= 120)) &&
+        (!('age' in data) || data.age is number) &&
+        (!('weight' in data) || data.weight is number) &&
+        (!('targetWeight' in data) || data.targetWeight is number) &&
+        (!('nextTargetWeight' in data) || data.nextTargetWeight is number) &&
+        (!('height' in data) || data.height is number) &&
+        (!('gender' in data) || (data.gender is string && data.gender.size() <= 30)) &&
+        (!('goal' in data) || (data.goal is string && data.goal.size() <= 50)) &&
+        (!('experienceLevel' in data) || (data.experienceLevel is string && data.experienceLevel.size() <= 30)) &&
+        (!('daysAvailable' in data) || data.daysAvailable is number) &&
+        (!('timePerSession' in data) || data.timePerSession is number) &&
+        (!('workoutLocation' in data) || (data.workoutLocation is string && data.workoutLocation.size() <= 50)) &&
+        (!('preferences' in data) || (data.preferences is string && data.preferences.size() <= 500)) &&
+        (!('injuriesOrLimitations' in data) || (data.injuriesOrLimitations is string && data.injuriesOrLimitations.size() <= 500));
+    }
+
+    function isValidWorkout(data) {
+      return data.keys().hasAll(['id', 'userId', 'routineName', 'date']) &&
+        data.keys().hasOnly(['id', 'userId', 'routineId', 'routineName', 'subtitle', 'date', 'energy', 'notes', 'exercises', 'customExercises', 'createdAt']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.userId is string && data.userId == request.auth.uid &&
+        data.routineName is string && data.routineName.size() <= 100 &&
+        data.date is string && data.date.size() <= 20 &&
+        (!('subtitle' in data) || (data.subtitle is string && data.subtitle.size() <= 150)) &&
+        (!('notes' in data) || (data.notes is string && data.notes.size() <= 1000)) &&
+        (!('energy' in data) || data.energy is number);
+    }
+
+    function isValidWeight(data) {
+      return data.keys().hasAll(['id', 'userId', 'date', 'weight']) &&
+        data.keys().hasOnly(['id', 'userId', 'date', 'weight', 'notes', 'createdAt']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.userId is string && data.userId == request.auth.uid &&
+        data.date is string && data.date.size() <= 20 &&
+        data.weight is number &&
+        (!('notes' in data) || (data.notes is string && data.notes.size() <= 300));
+    }
+
+    function isValidMeal(data) {
+      return data.keys().hasAll(['id', 'userId', 'date', 'name', 'calories']) &&
+        data.keys().hasOnly(['id', 'userId', 'date', 'name', 'calories', 'protein', 'carbs', 'fat', 'portion', 'time', 'createdAt']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.userId is string && data.userId == request.auth.uid &&
+        data.date is string && data.date.size() <= 20 &&
+        data.name is string && data.name.size() <= 150 &&
+        data.calories is number &&
+        (!('protein' in data) || data.protein is number) &&
+        (!('carbs' in data) || data.carbs is number) &&
+        (!('fat' in data) || data.fat is number) &&
+        (!('portion' in data) || (data.portion is string && data.portion.size() <= 100));
+    }
+
+    function isValidNutritionGoal(data) {
+      return data.keys().hasAll(['userId', 'calories', 'protein', 'carbs', 'fat']) &&
+        data.keys().hasOnly(['userId', 'calories', 'protein', 'carbs', 'fat', 'startWeight', 'currentWeight', 'targetWeight', 'nextTargetWeight', 'updatedAt']) &&
+        data.userId is string && data.userId == request.auth.uid &&
+        data.calories is number &&
+        data.protein is number &&
+        data.carbs is number &&
+        data.fat is number;
+    }
+
+    function isValidPhotoSession(data) {
+      return data.keys().hasAll(['id', 'userId', 'date']) &&
+        data.keys().hasOnly(['id', 'userId', 'date', 'weight', 'notes', 'targetMuscleGroups', 'createdAt']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.userId is string && data.userId == request.auth.uid &&
+        data.date is string && data.date.size() <= 20 &&
+        (!('weight' in data) || data.weight is number) &&
+        (!('notes' in data) || (data.notes is string && data.notes.size() <= 500)) &&
+        (!('targetMuscleGroups' in data) || data.targetMuscleGroups is list);
+    }
+
+    function isValidPhoto(data) {
+      return data.keys().hasAll(['id', 'userId', 'sessionId', 'angle', 'photoUrl']) &&
+        data.keys().hasOnly(['id', 'userId', 'sessionId', 'angle', 'zone', 'note', 'photoUrl', 'date', 'createdAt']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.userId is string && data.userId == request.auth.uid &&
+        data.sessionId is string && data.sessionId.size() <= 128 &&
+        data.angle is string && data.angle.size() <= 50 &&
+        data.photoUrl is string && data.photoUrl.size() <= 5000000 &&
+        (!('zone' in data) || (data.zone is string && data.zone.size() <= 50)) &&
+        (!('note' in data) || (data.note is string && data.note.size() <= 300));
+    }
+
+    function isValidRoutine(data) {
+      return data.keys().hasAll(['id', 'userId', 'title', 'splitType']) &&
+        data.keys().hasOnly(['id', 'userId', 'title', 'splitType', 'description', 'targetDays', 'progressionStrategy', 'planData', 'createdAt']) &&
+        data.id is string && data.id.size() <= 128 &&
+        data.userId is string && data.userId == request.auth.uid &&
+        data.title is string && data.title.size() <= 100 &&
+        data.splitType is string && data.splitType.size() <= 50 &&
+        (!('description' in data) || (data.description is string && data.description.size() <= 500)) &&
+        (!('targetDays' in data) || data.targetDays is number) &&
+        (!('progressionStrategy' in data) || (data.progressionStrategy is string && data.progressionStrategy.size() <= 500)) &&
+        (!('planData' in data) || (data.planData is string && data.planData.size() <= 100000));
+    }
+
+    // Rules for User Profile
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUserProfile(incoming());
+      allow update: if isOwner(userId) && isValidId(userId) && isValidUserProfile(incoming()) && incoming().userId == existing().userId;
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      // Nutrition Goals subcollection
+      match /goals/{goalId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(goalId) && isValidNutritionGoal(incoming());
+        allow update: if isOwner(userId) && isValidId(goalId) && isValidNutritionGoal(incoming()) && incoming().userId == existing().userId;
+        allow delete: if isOwner(userId) && isValidId(goalId);
+      }
+
+      // Workouts subcollection
+      match /workouts/{workoutId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(workoutId) && isValidWorkout(incoming());
+        allow update: if isOwner(userId) && isValidId(workoutId) && isValidWorkout(incoming()) && incoming().userId == existing().userId && incoming().id == existing().id;
+        allow delete: if isOwner(userId) && isValidId(workoutId);
+      }
+
+      // Weight records subcollection
+      match /weights/{weightId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(weightId) && isValidWeight(incoming());
+        allow update: if isOwner(userId) && isValidId(weightId) && isValidWeight(incoming()) && incoming().userId == existing().userId && incoming().id == existing().id;
+        allow delete: if isOwner(userId) && isValidId(weightId);
+      }
+
+      // Meals subcollection
+      match /meals/{mealId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(mealId) && isValidMeal(incoming());
+        allow update: if isOwner(userId) && isValidId(mealId) && isValidMeal(incoming()) && incoming().userId == existing().userId && incoming().id == existing().id;
+        allow delete: if isOwner(userId) && isValidId(mealId);
+      }
+
+      // Photo Sessions subcollection
+      match /photo_sessions/{sessionId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(sessionId) && isValidPhotoSession(incoming());
+        allow update: if isOwner(userId) && isValidId(sessionId) && isValidPhotoSession(incoming()) && incoming().userId == existing().userId && incoming().id == existing().id;
+        allow delete: if isOwner(userId) && isValidId(sessionId);
+      }
+
+      // Photos subcollection
+      match /photos/{photoId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(photoId) && isValidPhoto(incoming());
+        allow update: if isOwner(userId) && isValidId(photoId) && isValidPhoto(incoming()) && incoming().userId == existing().userId && incoming().id == existing().id;
+        allow delete: if isOwner(userId) && isValidId(photoId);
+      }
+
+      // Routines subcollection
+      match /routines/{routineId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidId(routineId) && isValidRoutine(incoming());
+        allow update: if isOwner(userId) && isValidId(routineId) && isValidRoutine(incoming()) && incoming().userId == existing().userId && incoming().id == existing().id;
+        allow delete: if isOwner(userId) && isValidId(routineId);
+      }
+    }
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile settings and body composition stats",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 120 },
+        "age": { "type": "number" },
+        "weight": { "type": "number" },
+        "targetWeight": { "type": "number" },
+        "nextTargetWeight": { "type": "number" },
+        "height": { "type": "number" },
+        "gender": { "type": "string", "maxLength": 30 },
+        "goal": { "type": "string", "maxLength": 50 },
+        "experienceLevel": { "type": "string", "maxLength": 30 },
+        "daysAvailable": { "type": "number" },
+        "timePerSession": { "type": "number" },
+        "workoutLocation": { "type": "string", "maxLength": 50 },
+        "preferences": { "type": "string", "maxLength": 500 },
+        "injuriesOrLimitations": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "displayName"]
+    },
+    "WorkoutSession": {
+      "title": "WorkoutSession",
+      "description": "A single logged workout session",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "routineId": { "type": "string", "maxLength": 128 },
+        "routineName": { "type": "string", "maxLength": 100 },
+        "subtitle": { "type": "string", "maxLength": 150 },
+        "date": { "type": "string", "maxLength": 20 },
+        "energy": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "routineName", "date"]
+    },
+    "WeightRecord": {
+      "title": "WeightRecord",
+      "description": "A logged weigh-in data point",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 20 },
+        "weight": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 300 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "date", "weight"]
+    },
+    "NutritionItem": {
+      "title": "NutritionItem",
+      "description": "A food item logged for a day",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 20 },
+        "name": { "type": "string", "maxLength": 150 },
+        "calories": { "type": "number" },
+        "protein": { "type": "number" },
+        "carbs": { "type": "number" },
+        "fat": { "type": "number" },
+        "portion": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "date", "name", "calories"]
+    },
+    "NutritionGoal": {
+      "title": "NutritionGoal",
+      "description": "Daily nutrition goals and macros for a user",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "calories": { "type": "number" },
+        "protein": { "type": "number" },
+        "carbs": { "type": "number" },
+        "fat": { "type": "number" },
+        "startWeight": { "type": "number" },
+        "currentWeight": { "type": "number" },
+        "targetWeight": { "type": "number" },
+        "nextTargetWeight": { "type": "number" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "calories", "protein", "carbs", "fat"]
+    },
+    "PhotoSession": {
+      "title": "PhotoSession",
+      "description": "A photo progression session entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "date": { "type": "string", "maxLength": 20 },
+        "weight": { "type": "number" },
+        "notes": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "date"]
+    },
+    "ProgressPhoto": {
+      "title": "ProgressPhoto",
+      "description": "An image belonging to a photo session",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "sessionId": { "type": "string", "maxLength": 128 },
+        "angle": { "type": "string", "maxLength": 50 },
+        "zone": { "type": "string", "maxLength": 50 },
+        "note": { "type": "string", "maxLength": 300 },
+        "photoUrl": { "type": "string", "maxLength": 5000000 },
+        "date": { "type": "string", "maxLength": 20 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "sessionId", "angle", "photoUrl"]
+    },
+    "RoutinePlan": {
+      "title": "RoutinePlan",
+      "description": "Custom or AI-generated training plan",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 100 },
+        "splitType": { "type": "string", "maxLength": 50 },
+        "description": { "type": "string", "maxLength": 500 },
+        "targetDays": { "type": "number" },
+        "progressionStrategy": { "type": "string", "maxLength": 500 },
+        "planData": { "type": "string", "maxLength": 100000 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "title", "splitType"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile information"
+    },
+    "/users/{userId}/goals/{goalId}": {
+      "schema": "NutritionGoal",
+      "description": "User nutrition goals"
+    },
+    "/users/{userId}/workouts/{workoutId}": {
+      "schema": "WorkoutSession",
+      "description": "User workout logs"
+    },
+    "/users/{userId}/weights/{weightId}": {
+      "schema": "WeightRecord",
+      "description": "User weight tracking records"
+    },
+    "/users/{userId}/meals/{mealId}": {
+      "schema": "NutritionItem",
+      "description": "User logged food items"
+    },
+    "/users/{userId}/photo_sessions/{sessionId}": {
+      "schema": "PhotoSession",
+      "description": "User progress photo sessions"
+    },
+    "/users/{userId}/photos/{photoId}": {
+      "schema": "ProgressPhoto",
+      "description": "User progress photo images and metadata"
+    },
+    "/users/{userId}/routines/{routineId}": {
+      "schema": "RoutinePlan",
+      "description": "User custom and AI generated routines"
+    }
+  }
+}

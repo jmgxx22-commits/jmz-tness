@@ -1,0 +1,47 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Proxy Gemini API routes to Netlify Serverless Functions in production
+[[redirects]]
+  from = "/api/gemini/chat"
+  to = "/.netlify/functions/chat"
+  status = 200
+
+[[redirects]]
+  from = "/api/gemini/generate-routine"
+  to = "/.netlify/functions/generate-routine"
+  status = 200
+
+[[redirects]]
+  from = "/api/gemini/analyze-meal"
+  to = "/.netlify/functions/analyze-meal"
+  status = 200
+
+[[redirects]]
+  from = "/api/download"
+  to = "/downloads/jmz-tness-production.zip"
+  status = 200
+
+# SPA fallback rule for React router and navigation
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Standard security headers and cache control
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
