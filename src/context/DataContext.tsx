@@ -208,15 +208,15 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       workoutDraft: newDrafts
     });
 
-    if (firebaseUser) {
-      try {
-        const docRef = doc(db, 'users', firebaseUser.uid, 'workouts', newSession.id);
-        await setDoc(docRef, newSession);
-      } catch (err) {
-        handleFirestoreError(err, OperationType.CREATE, `users/${firebaseUser.uid}/workouts/${newSession.id}`);
-      }
-    }
-  };
+if (firebaseUser) {
+  try {
+    const docRef = doc(db, 'users', firebaseUser.uid, 'workouts', newSession.id);
+    await setDoc(docRef, newSession);
+  } catch (err) {
+    handleFirestoreError(err, OperationType.CREATE, `users/${firebaseUser.uid}/workouts/${newSession.id}`);
+    throw err;
+  }
+}
 
   const deleteWorkoutSession = async (sessionId: string) => {
     const filtered = data.workoutHistory.filter(s => s.id !== sessionId);
