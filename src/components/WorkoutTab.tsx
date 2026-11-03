@@ -133,16 +133,18 @@ export const WorkoutTab: React.FC<WorkoutTabProps> = ({ showToast, onNavigateToA
     updateDraft({ customExercises: updated });
   };
 
-  const onSave = () => {
+  const onSave = async () => {
     let hasAnySet = false;
+
     for (const ex of exercises) {
       for (const s of ex.sets) {
-        if (s.weight && s.reps) hasAnySet = true;
+        if (s.weight !== '' && s.reps !== '') hasAnySet = true;
       }
     }
+
     for (const cx of customExercises) {
       for (const s of cx.sets) {
-        if (s.weight && s.reps) hasAnySet = true;
+        if (s.weight !== '' && s.reps !== '') hasAnySet = true;
       }
     }
 
@@ -151,24 +153,30 @@ export const WorkoutTab: React.FC<WorkoutTabProps> = ({ showToast, onNavigateToA
       return;
     }
 
-    saveWorkoutSession({
-      routineId: activeRoutine.id,
-      routineName: currentDayPlan.dayName,
-      subtitle: currentDayPlan.focus,
-      date,
-      energy,
-      notes,
-      exercises,
-      customExercises
-    });
+    try {
+      await saveWorkoutSession({
+        routineId: activeRoutine.id,
+        routineName: currentDayPlan.dayName,
+        subtitle: currentDayPlan.focus,
+        date,
+        energy,
+        notes,
+        exercises,
+        customExercises
+      });
 
-    clearWorkoutDraft(currentWorkoutDay);
-    showToast('¡Sesión guardada con éxito! 💪');
+      clearWorkoutDraft(currentWorkoutDay);
 
-    // Reset fields for current day
-    setExercises(initExercises(currentDayPlan));
-    setCustomExercises([]);
-    setNotes('');
+      showToast('¡Sesión guardada con éxito! 💪');
+
+      setExercises(initExercises(currentDayPlan));
+      setCustomExercises([]);
+      setNotes('');
+
+    } catch (error) {
+      console.error('Error al guardar entrenamiento:', error);
+      showToast('No se pudo guardar la sesión. Tus datos siguen aquí.');
+    }
   };
 
   return (
